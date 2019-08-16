@@ -7,6 +7,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -18,10 +20,14 @@ public class OrangeTests {
     private final String PASSWORD = ".//input[@name='txtPassword']";
     private final String LOGIN = ".//input[@name='Submit']";
     private final String MESSAGE = ".//span[@id='spanMessage']";
+    @FindBy(css = "iframe[name='preview-frame']")
+    private WebElement frame;
 
 
     /**
      * Set up method to initialize driver and WebDriverWait
+     * open URL
+     * focus on frame
      */
     @Before
     public void setUp() {
@@ -34,13 +40,18 @@ public class OrangeTests {
         //open url
         driver.get(URL);
         //switch to frame
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("iframe[name='preview-frame']"))));
-        driver.switchTo().frame(driver.findElement(By.cssSelector("iframe[name='preview-frame']")));
+        PageFactory.initElements(driver, this);
+        wait.until((ExpectedConditions.visibilityOf(frame)));
+        driver.switchTo().frame(frame);
 
     }
 
     /**
-     * Try to login with incorrect login and password
+     * Try to login:
+     * with incorrect login and password;
+     * without credentials;
+     * without password.
+     * Remove frame
      */
     @Test
     public void loginWithIncorrectData() {
@@ -55,10 +66,7 @@ public class OrangeTests {
 
         Assert.assertTrue(driver.findElement(By.xpath(MESSAGE)).isDisplayed());
         Assert.assertEquals("Invalid credentials", driver.findElement(By.xpath(MESSAGE)).getText());
-    }
 
-    @Test
-    public void loginWithEmptyData() {
         //clear username
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(USERNAME)))).clear();
         //clear password
@@ -70,10 +78,7 @@ public class OrangeTests {
 
         Assert.assertTrue(driver.findElement(By.xpath(MESSAGE)).isDisplayed());
         Assert.assertEquals("Username cannot be empty", driver.findElement(By.xpath(MESSAGE)).getText());
-    }
 
-    @Test
-    public void loginWithoutPassword() {
         //Enter username
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(USERNAME)))).sendKeys("Mich");
         //clear password
@@ -85,10 +90,7 @@ public class OrangeTests {
 
         Assert.assertTrue(driver.findElement(By.xpath(MESSAGE)).isDisplayed());
         Assert.assertEquals("Password cannot be empty", driver.findElement(By.xpath(MESSAGE)).getText());
-    }
 
-    @Test
-    public void removeFrame() {
         //focus on default content
         driver.switchTo().defaultContent();
         //click on remove frame
